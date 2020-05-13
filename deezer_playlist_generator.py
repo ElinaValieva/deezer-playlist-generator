@@ -29,7 +29,8 @@ class DeezerPlayListCreator:
             result.append(self.__get_playlist(playlist_id))
         return result
 
-    def __get_related_artist(self, artist_id):
+    @staticmethod
+    def __get_related_artist(artist_id):
         response = requests.get('https://www.deezer.com/ru/artist/{}/related_artist'.format(artist_id))
         if response.status_code != 200:
             raise Exception('Error with loading related artists: {}'.format(response.reason))
@@ -44,14 +45,14 @@ class DeezerPlayListCreator:
         return result
 
     @staticmethod
-    def __get_tracklist_by_artist(artist_id):
+    def __get_track_list_by_artist(artist_id):
         response = requests.get('https://api.deezer.com/artist/{}/top?limit=10'.format(artist_id))
         if response.status_code != 200:
             raise Exception('Error with loading playlist: {}'.format(response.reason))
         response_data = response.json()['data']
         result = []
-        for t in response_data:
-            track = playlist.Track(t)
+        for track_element in response_data:
+            track = playlist.Track(track_element)
             if playlist.playlist.get(artist_id) is None or track.id not in playlist.playlist.get(artist_id):
                 result.append(track)
         return result
@@ -83,7 +84,9 @@ class DeezerPlayListCreator:
         all_tracks = {}
         user_artists = self.__get_user_artists(user_playlist)
         for artist in user_artists:
-            all_tracks[artist.name] = self.__get_tracklist_by_artist(artist.id)
+            all_tracks[artist.name] = self.__get_track_list_by_artist(artist.id)
+            if len(all_tracks) == count_tracks:
+                break
 
         return self.__get_tracks(all_tracks, count_tracks)
 
