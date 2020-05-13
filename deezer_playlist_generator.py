@@ -31,13 +31,15 @@ class DeezerPlayListCreator:
 
     @staticmethod
     def __get_tracklist_by_artist(artist_id):
-        response = requests.get('https://api.deezer.com/artist/' + str(artist_id) + '/top?limit=50')
+        response = requests.get('https://api.deezer.com/artist/' + str(artist_id) + '/top?limit=10')
         if response.status_code != 200:
             raise Exception('Error with loading playlist: {}'.format(response.reason))
         response_data = response.json()['data']
         result = []
         for t in response_data:
-            result.append(playlist.Track(t))
+            track = playlist.Track(t)
+            if track.id not in playlist.playlist.get(artist_id):
+                result.append(track.title)
         return result
 
     @staticmethod
@@ -46,17 +48,19 @@ class DeezerPlayListCreator:
         for playList in user_playlist:
             for track in playList.tracks:
                 artist.append(track.artist)
-        return artist
+        return list(dict.fromkeys(artist))
 
-    def generate_tracks(self, user_id):
+    def generate_tracks(self, user_id, count_tracks):
         user_playlist = self.__get_user_playlist(user_id)
         all_tracks = []
         user_artists = self.__get_user_artists(user_playlist)
         for artist in user_artists:
-            all_tracks.append(self.__get_tracklist_by_artist(artist.id))
-        return all_tracks
+            all_tracks.extend(self.__get_tracklist_by_artist(artist.id))
+        list(dict.fromkeys(all_tracks))
+        return all_tracks if len(all_tracks) < count_tracks else all_tracks[:count_tracks]
 
 
 if __name__ == '__main__':
     cp = DeezerPlayListCreator()
-    cp.generate_tracks(2149084062)
+    tracks = cp.generate_tracks(2149084062, 10)
+    print(tracks)
