@@ -11,6 +11,7 @@ class Album:
     def __init__(self, album):
         self.id = album['id']
         self.title = album['title']
+        self.preview = album['cover_medium']
 
 
 class Track:
@@ -19,6 +20,8 @@ class Track:
         self.title = track['title']
         self.artist = Artist(track['artist']['id'], track['artist']['name'])
         self.album = Album(track['album'])
+        self.preview = track['preview']
+        self.link = track['link']
 
 
 class PlayList:

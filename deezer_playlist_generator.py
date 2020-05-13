@@ -95,4 +95,4 @@ if __name__ == '__main__':
     cp = DeezerPlayListCreator()
     tracks = cp.generate_tracks(2149084062, 15)
     for t in tracks:
-        print('{}-{}'.format(t.artist.name, t.title))
+        print('{}-{} : {}'.format(t.artist.name, t.title, t.preview))
