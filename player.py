@@ -8,6 +8,7 @@ import deezer_playlist_generator
 player = tkr.Tk()
 player.title('Deezer player')
 player.geometry('350x350')
+player.configure(background='black')
 current_song_number = 0
 tracks = []
 currentSong = 'text'
@@ -39,18 +40,27 @@ def prev(index):
     download(index)
 
 
-playButton = tkr.Button(player, width=5, height=3, text='Play', command=play)
-playButton.pack(fill='x')
-stopButton = tkr.Button(player, width=5, height=3, text='Stop', command=stop)
-stopButton.pack(fill='x')
-nextButton = tkr.Button(player, width=5, height=3, text='Next', command=lambda: next(current_song_number))
-nextButton.pack(fill='x')
-prevButton = tkr.Button(player, width=5, height=3, text='Previous', command=lambda: prev(current_song_number))
-prevButton.pack(fill='x')
-songLabelFrame = tkr.LabelFrame(player, text='Song name')
-songLabelFrame.pack(fill='both', expand='yes')
-songLabel = tkr.Label(songLabelFrame, text=currentSong)
-songLabel.pack()
+player.geometry('422x400')
+
+playImage = tkr.PhotoImage(file='images/play.png')
+stopImage = tkr.PhotoImage(file='images/stop.png')
+nextImage = tkr.PhotoImage(file='images/next.png')
+prevImage = tkr.PhotoImage(file='images/prev.png')
+
+playButton = tkr.Button(text='Play', width=100, image=playImage, command=play)
+stopButton = tkr.Button(text='Stop', width=100, image=stopImage, command=stop)
+nextButton = tkr.Button(text='Next', width=100, image=nextImage, command=lambda: next(current_song_number))
+prevButton = tkr.Button(text='Prev', width=100, image=prevImage, command=lambda: prev(current_song_number))
+
+prevButton.grid(row=1, column=0)
+playButton.grid(row=1, column=1)
+stopButton.grid(row=1, column=2)
+nextButton.grid(row=1, column=3)
+#
+# img = tkr.PhotoImage(file='images/album.jpg')
+# panel = tkr.Label(player, image=img)
+# panel.pack(side="bottom", fill="both", expand="yes")
+
 
 if __name__ == '__main__':
     creator = deezer_playlist_generator.DeezerPlayListCreator()
