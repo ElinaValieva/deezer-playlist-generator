@@ -2,9 +2,9 @@ playlist = {}
 
 
 class Artist:
-    def __init__(self, artist):
-        self.id = artist['id']
-        self.name = artist['name']
+    def __init__(self, artist_id, artist_name):
+        self.id = artist_id
+        self.name = artist_name
 
 
 class Album:
@@ -17,7 +17,7 @@ class Track:
     def __init__(self, track):
         self.id = track['id']
         self.title = track['title']
-        self.artist = Artist(track['artist'])
+        self.artist = Artist(track['artist']['id'], track['artist']['name'])
         self.album = Album(track['album'])
 
 
