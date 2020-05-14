@@ -42,8 +42,9 @@ class PlayerControl:
 
     @staticmethod
     def stop():
-        if pygame.mixer.get_init() is not None:
-            pygame.mixer.music.stop()
+        if pygame.mixer.get_init() is None:
+            return
+        pygame.mixer.music.stop()
 
     @staticmethod
     def next_song(player_ui):
@@ -88,7 +89,7 @@ class PlayerUI:
                                       command=lambda: PlayerControl.play(self))
 
         self.stop_image = tkr.PhotoImage(file='images/stop.png')
-        self.stop_button = tkr.Button(text='Stop', width=40, image=self.stop_image, command=lambda: PlayerControl.stop)
+        self.stop_button = tkr.Button(text='Stop', width=40, image=self.stop_image, command=PlayerControl.stop)
 
         self.next_image = tkr.PhotoImage(file='images/next.png')
         self.next_button = tkr.Button(text='Next', width=40, image=self.next_image,
