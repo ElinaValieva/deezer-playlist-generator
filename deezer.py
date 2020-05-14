@@ -1,4 +1,5 @@
 import json
+import re
 import time
 
 import requests
@@ -9,40 +10,62 @@ import playlist
 
 class DeezerPlayListCreator:
 
+    def __init__(self, app_id, secret, code):
+        self.app_id = app_id
+        self.secret = secret
+        self.code = code
+        self.user_id = self.__user_id()
+        # self.user_id = 2149084062
+
+    def __generate_auth_token(self):
+        try:
+            response = requests.get('https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}'
+                                    .format(self.app_id, self.secret, self.code))
+            return re.search('access_token=(.+?)&expires', response.text).group(1)
+        except Exception as e:
+            print("Error with authentication due to: {}".format(e))
+            raise Exception("Unauthorized. Check authentication parameters and that access code was not used before")
+
+    def __user_id(self):
+        token = self.__generate_auth_token()
+        response = requests.get('https://api.deezer.com/user/me?access_token={}'.format(token))
+        if response.status_code != 200 or response.json().get('error', None) is not None:
+            raise Exception('Error with getting user info: {}'.format(response.reason))
+        return response.json().get('id')
+
     @staticmethod
     def __get_playlist(playlist_id):
         response = requests.get('https://api.deezer.com/playlist/' + playlist_id)
-        if response.status_code != 200:
+        if response.status_code != 200 or response.json().get('error', None) is not None:
             raise Exception('Error with loading playlist: {}'.format(response.reason))
         return playlist.PlayList(response.json())
 
-    def __get_user_playlist(self, user_id):
-        response = requests.get('https://www.deezer.com/ru/profile/{}//playlists'.format(user_id))
+    def get_playlist(self):
+        response = requests.get('https://www.deezer.com/ru/profile/{}/playlists'.format(self.user_id))
         if response.status_code != 200:
             raise Exception('Error with loading playlist: {}'.format(response.reason))
-        response_content = response.content.decode("utf-8")
-        start = response_content.find('window.__DZR_APP_STATE__ =')
-        end = response_content.rfind('}}')
-        script_content = json.loads(response_content[start:end].replace('window.__DZR_APP_STATE__ =', '') + '}}')
-        playlist_data = script_content['TAB']['playlists']['data']
+        playlist_data = self.__parse_html_script(response)['TAB']['playlists']['data']
         result = []
         playlist_range = len(playlist_data)
         for i in tqdm.tqdm(range(playlist_range), desc='Processing user playlist'):
-            playlist_id = playlist_data[i].get('PLAYLIST_ID')
+            playlist_id = playlist_data[i].get('PLAYLIST_ID', None)
             result.append(self.__get_playlist(playlist_id))
             time.sleep(0.1)
         return result
 
     @staticmethod
-    def __get_related_artist(artist_id):
+    def __parse_html_script(response):
+        try:
+            return json.loads(re.search('<script>window.__DZR_APP_STATE__ =(.+?)</script>',
+                                        response.content.decode("utf-8")).group(1))
+        except Exception as e:
+            raise Exception('Html content was change: {}'.format(e))
+
+    def __get_related_artist(self, artist_id):
         response = requests.get('https://www.deezer.com/ru/artist/{}/related_artist'.format(artist_id))
         if response.status_code != 200:
             raise Exception('Error with loading related artists: {}'.format(response.reason))
-        response_content = response.content.decode("utf-8")
-        start = response_content.find('window.__DZR_APP_STATE__ =')
-        end = response_content.rfind('}}')
-        script_content = json.loads(response_content[start:end].replace('window.__DZR_APP_STATE__ =', '') + '}}')
-        playlist_data = script_content['RELATED_ARTISTS']['data']
+        playlist_data = self.__parse_html_script(response)['RELATED_ARTISTS']['data']
         result = []
         for p in playlist_data:
             result.append(playlist.Artist(p.get('ART_ID'), p.get('ART_NAME')))
@@ -51,7 +74,7 @@ class DeezerPlayListCreator:
     @staticmethod
     def __get_track_list_by_artist(artist_id):
         response = requests.get('https://api.deezer.com/artist/{}/top?limit=10'.format(artist_id))
-        if response.status_code != 200:
+        if response.status_code != 200 or response.json().get('error', None) is not None:
             raise Exception('Error with loading playlist: {}'.format(response.reason))
         response_data = response.json()['data']
         result = []
@@ -85,8 +108,8 @@ class DeezerPlayListCreator:
                 index += 1
         return result
 
-    def generate_tracks(self, user_id, count_tracks):
-        user_playlist = self.__get_user_playlist(user_id)
+    def generate_tracks(self, count_tracks):
+        user_playlist = self.get_playlist()
         user_artists = self.__get_user_artists(user_playlist, count_tracks)
         count_artist = len(user_artists) if len(user_artists) <= count_tracks else count_tracks
         all_tracks = {}
@@ -97,5 +120,5 @@ class DeezerPlayListCreator:
 
 
 if __name__ == '__main__':
-    cp = DeezerPlayListCreator()
-    tracks = cp.generate_tracks(2149084062, 15)
+    cp = DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'frf89b8d109641dd819a6f46d4ea4236')
+    tracks = cp.generate_tracks(15)

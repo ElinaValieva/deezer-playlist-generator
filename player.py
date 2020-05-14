@@ -1,9 +1,9 @@
+import time
 import tkinter as tkr
 
 import pygame
 import requests
 import tqdm
-import time
 from PIL import ImageTk, Image
 
 import deezer
@@ -118,8 +118,8 @@ class PlayerUI:
 
 
 if __name__ == '__main__':
-    creator = deezer.DeezerPlayListCreator()
+    cp = deezer.DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'frf89b8d109641dd819a6f46d4ea4236')
     MAX_SIZE = 5
-    tracks = creator.generate_tracks(2149084062, MAX_SIZE)
+    tracks = cp.generate_tracks(MAX_SIZE)
     sound_tracks = Downloader().download(tracks)
     PlayerUI(MAX_SIZE, sound_tracks).start()
