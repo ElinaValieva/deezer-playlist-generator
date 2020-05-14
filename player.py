@@ -118,7 +118,7 @@ class PlayerUI:
 
 
 if __name__ == '__main__':
-    cp = deezer.DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'frf89b8d109641dd819a6f46d4ea4236')
+    cp = deezer.DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'fr1d6fa6ab09b037303e8311de70fa25')
     MAX_SIZE = 5
     tracks = cp.generate_tracks(MAX_SIZE)
     sound_tracks = Downloader().download(tracks)
