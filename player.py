@@ -2,9 +2,11 @@ import tkinter as tkr
 
 import pygame
 import requests
+import tqdm
+import time
 from PIL import ImageTk, Image
 
-import deezer_playlist_generator
+import deezer
 
 
 class Downloader:
@@ -12,12 +14,13 @@ class Downloader:
     def download(self, soundtracks):
         index = 0
         music_list = {}
-        for track in soundtracks:
-            print('{}-{}'.format(track.artist.name, track.title))
-            music_list[index] = '{}-{}'.format(track.artist.name, track.title)
+        for i in tqdm.tqdm(range(len(soundtracks)), desc='Download deezer playlist'):
+            track = soundtracks[i]
+            music_list[index] = '{} - {}'.format(track.artist.name, track.title)
             self.__download_file(track.preview, 'music/{}.mp3'.format(index))
             self.__download_file(track.album.preview, 'album/{}.png'.format(index))
             index += 1
+            time.sleep(0.1)
         return music_list
 
     @staticmethod
@@ -103,7 +106,7 @@ class PlayerUI:
 
         # Grid configuration
         self.panel.grid(columnspan=4, padx=(85, 20), pady=(20, 0))
-        self.music_label.grid(column=0, columnspan=4, ipadx=len(self.music_label['text']) * 2)
+        self.music_label.grid(columnspan=4, ipadx=len(self.music_label['text']) * 3)
         self.prev_button.grid(row=1, column=0, padx=(80, 10), pady=(80, 10))
         self.play_button.grid(row=1, column=1, padx=(10, 10), pady=(80, 10))
         self.stop_button.grid(row=1, column=2, padx=(10, 10), pady=(80, 10))
@@ -114,8 +117,8 @@ class PlayerUI:
 
 
 if __name__ == '__main__':
-    creator = deezer_playlist_generator.DeezerPlayListCreator()
-    MAX_SIZE = 10
+    creator = deezer.DeezerPlayListCreator()
+    MAX_SIZE = 5
     tracks = creator.generate_tracks(2149084062, MAX_SIZE)
     sound_tracks = Downloader().download(tracks)
     PlayerUI(MAX_SIZE, sound_tracks).start()

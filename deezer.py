@@ -1,6 +1,8 @@
 import json
+import time
 
 import requests
+import tqdm
 
 import playlist
 
@@ -24,9 +26,11 @@ class DeezerPlayListCreator:
         script_content = json.loads(response_content[start:end].replace('window.__DZR_APP_STATE__ =', '') + '}}')
         playlist_data = script_content['TAB']['playlists']['data']
         result = []
-        for p in playlist_data:
-            playlist_id = p.get('PLAYLIST_ID')
+        playlist_range = len(playlist_data)
+        for i in tqdm.tqdm(range(playlist_range), desc='Processing user playlist'):
+            playlist_id = playlist_data[i].get('PLAYLIST_ID')
             result.append(self.__get_playlist(playlist_id))
+            time.sleep(0.1)
         return result
 
     @staticmethod
@@ -57,12 +61,14 @@ class DeezerPlayListCreator:
                 result.append(track)
         return result
 
-    def __get_user_artists(self, user_playlist):
+    def __get_user_artists(self, user_playlist, count_tracks):
         artist = []
         for playList in user_playlist:
             for track in playList.tracks:
                 artist.append(track.artist)
                 artist.extend(self.__get_related_artist(track.artist.id))
+                if len(artist) > count_tracks:
+                    break
         return list(dict.fromkeys(artist))
 
     @staticmethod
@@ -81,18 +87,15 @@ class DeezerPlayListCreator:
 
     def generate_tracks(self, user_id, count_tracks):
         user_playlist = self.__get_user_playlist(user_id)
+        user_artists = self.__get_user_artists(user_playlist, count_tracks)
+        count_artist = len(user_artists) if len(user_artists) <= count_tracks else count_tracks
         all_tracks = {}
-        user_artists = self.__get_user_artists(user_playlist)
-        for artist in user_artists:
-            all_tracks[artist.name] = self.__get_track_list_by_artist(artist.id)
-            if len(all_tracks) == count_tracks:
-                break
-
+        for i in tqdm.tqdm(range(count_artist), desc='Generating playlist'):
+            all_tracks[user_artists[i].name] = self.__get_track_list_by_artist(user_artists[i].id)
+            time.sleep(0.01)
         return self.__get_tracks(all_tracks, count_tracks)
 
 
 if __name__ == '__main__':
     cp = DeezerPlayListCreator()
     tracks = cp.generate_tracks(2149084062, 15)
-    for t in tracks:
-        print('{}-{} : {}'.format(t.artist.name, t.title, t.preview))
