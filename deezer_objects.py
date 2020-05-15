@@ -32,6 +32,11 @@ class PlayList:
         self.tracks = parse_tracks(play_list['tracks']['data'])
 
 
+class User:
+    def __init__(self, user_data):
+        self.id = user_data['id']
+
+
 def parse_tracks(tracks_data):
     tracks = []
     for t in tracks_data:
