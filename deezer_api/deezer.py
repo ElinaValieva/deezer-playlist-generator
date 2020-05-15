@@ -5,8 +5,7 @@ import time
 import requests
 import tqdm
 
-import deezer_auth
-import deezer_objects
+from deezer_api.deezer_subservice import deezer_auth, Album, User, Artist, Track, PlayList
 
 
 class DeezerPlayListCreator:
@@ -20,14 +19,14 @@ class DeezerPlayListCreator:
         response = requests.get('https://api.deezer.com/user/me?access_token={}'.format(self.token))
         if response.status_code != 200 or response.json().get('error', None) is not None:
             raise Exception('Error with getting user info: {}'.format(response.reason))
-        return deezer_objects.User(response.json())
+        return User(response.json())
 
     @staticmethod
     def get_playlist_by_id(playlist_id):
         response = requests.get('https://api.deezer.com/playlist/{}'.format(playlist_id))
         if response.status_code != 200 or response.json().get('error', None) is not None:
             raise Exception('Error with loading playlist: {}'.format(response.reason))
-        return deezer_objects.PlayList(response.json())
+        return PlayList(response.json())
 
     def get_playlist(self):
         response = requests.get('https://www.deezer.com/ru/profile/{}/playlists'.format(self.user_id))
@@ -57,7 +56,7 @@ class DeezerPlayListCreator:
         playlist_data = self.__parse_html_script(response)['RELATED_ARTISTS']['data']
         result = []
         for p in playlist_data:
-            result.append(deezer_objects.Artist(p.get('ART_ID'), p.get('ART_NAME')))
+            result.append(Artist(p.get('ART_ID'), p.get('ART_NAME')))
         return result
 
     @staticmethod
@@ -68,9 +67,9 @@ class DeezerPlayListCreator:
         response_data = response.json()['data']
         result = []
         for track_element in response_data:
-            soundtrack = deezer_objects.Track(track_element)
-            if deezer_objects.playlist.get(artist_id) is None or \
-                    soundtrack.id not in deezer_objects.playlist.get(artist_id):
+            soundtrack = Track(track_element)
+            if playlist.get(artist_id) is None or \
+                    soundtrack.id not in playlist.get(artist_id):
                 result.append(soundtrack)
         return result
 
@@ -103,7 +102,7 @@ class DeezerPlayListCreator:
         try:
             response = requests.get('https://api.deezer.com/track/{}'
                                     .format(track_id))
-            return deezer_objects.Track(response.json())
+            return Track(response.json())
         except Exception as e:
             print(e)
             raise Exception('Error with getting track by id: {}'.format(track_id))
@@ -113,7 +112,7 @@ class DeezerPlayListCreator:
         try:
             response = requests.get('https://api.deezer.com/artist/{}'
                                     .format(artist_id))
-            return deezer_objects.Artist(response.json()['id'], response.json()['name'])
+            return Artist(response.json()['id'], response.json()['name'])
         except Exception as e:
             print(e)
             raise Exception('Error with getting artist by id: {}'.format(artist_id))
@@ -123,7 +122,7 @@ class DeezerPlayListCreator:
         try:
             response = requests.get('https://api.deezer.com/album/{}'
                                     .format(album_id))
-            return deezer_objects.Album(response.json())
+            return Album(response.json())
         except Exception as e:
             print(e)
             raise Exception('Error with getting album by id: {}'.format(album_id))
