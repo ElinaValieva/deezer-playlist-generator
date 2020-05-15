@@ -5,7 +5,7 @@ import time
 import requests
 import tqdm
 
-from deezer_api.deezer_subservice import deezer_auth, Album, User, Artist, Track, PlayList
+from deezer_api.deezer_subservice import deezer_auth, Album, User, Artist, Track, PlayList, DeezerError, playlist
 
 
 class DeezerPlayListCreator:
@@ -25,13 +25,13 @@ class DeezerPlayListCreator:
     def get_playlist_by_id(playlist_id):
         response = requests.get('https://api.deezer.com/playlist/{}'.format(playlist_id))
         if response.status_code != 200 or response.json().get('error', None) is not None:
-            raise Exception('Error with loading playlist: {}'.format(response.reason))
+            raise DeezerError('Error with loading playlist: {}'.format(response.reason))
         return PlayList(response.json())
 
     def get_playlist(self):
         response = requests.get('https://www.deezer.com/ru/profile/{}/playlists'.format(self.user_id))
         if response.status_code != 200:
-            raise Exception('Error with loading playlist: {}'.format(response.reason))
+            raise DeezerError('Error with loading playlist: {}'.format(response.reason))
         playlist_data = self.__parse_html_script(response)['TAB']['playlists']['data']
         result = []
         playlist_range = len(playlist_data)
@@ -47,12 +47,12 @@ class DeezerPlayListCreator:
             return json.loads(re.search('<script>window.__DZR_APP_STATE__ =(.+?)</script>',
                                         response.content.decode("utf-8")).group(1))
         except Exception as e:
-            raise Exception('Html content was change: {}'.format(e))
+            raise DeezerError('Html content was change: {}'.format(e))
 
     def get_related_artists(self, artist_id):
         response = requests.get('https://www.deezer.com/ru/artist/{}/related_artist'.format(artist_id))
         if response.status_code != 200:
-            raise Exception('Error with loading related artists: {}'.format(response.reason))
+            raise DeezerError('Error with loading related artists: {}'.format(response.reason))
         playlist_data = self.__parse_html_script(response)['RELATED_ARTISTS']['data']
         result = []
         for p in playlist_data:
@@ -63,7 +63,7 @@ class DeezerPlayListCreator:
     def get_top_popular_tracks_by_artist_id(artist_id):
         response = requests.get('https://api.deezer.com/artist/{}/top?limit=10'.format(artist_id))
         if response.status_code != 200 or response.json().get('error', None) is not None:
-            raise Exception('Error with loading playlist: {}'.format(response.reason))
+            raise DeezerError('Error with loading playlist: {}'.format(response.reason))
         response_data = response.json()['data']
         result = []
         for track_element in response_data:
@@ -105,7 +105,7 @@ class DeezerPlayListCreator:
             return Track(response.json())
         except Exception as e:
             print(e)
-            raise Exception('Error with getting track by id: {}'.format(track_id))
+            raise DeezerError('Error with getting track by id: {}'.format(track_id))
 
     @staticmethod
     def get_artist(artist_id):
@@ -115,7 +115,7 @@ class DeezerPlayListCreator:
             return Artist(response.json()['id'], response.json()['name'])
         except Exception as e:
             print(e)
-            raise Exception('Error with getting artist by id: {}'.format(artist_id))
+            raise DeezerError('Error with getting artist by id: {}'.format(artist_id))
 
     @staticmethod
     def get_album(album_id):
@@ -125,7 +125,7 @@ class DeezerPlayListCreator:
             return Album(response.json())
         except Exception as e:
             print(e)
-            raise Exception('Error with getting album by id: {}'.format(album_id))
+            raise DeezerError('Error with getting album by id: {}'.format(album_id))
 
     def create_playlist(self, title):
         try:
@@ -135,7 +135,7 @@ class DeezerPlayListCreator:
             return self.get_playlist_by_id(playlist_id)
         except Exception as e:
             print(e)
-            raise Exception('Error with creating playlist: {}'.format(title))
+            raise DeezerError('Error with creating playlist: {}'.format(title))
 
     def add_track_to_playlist(self, playlist_id, track_id):
         try:
@@ -143,7 +143,7 @@ class DeezerPlayListCreator:
                           .format(playlist_id, self.token, track_id))
         except Exception as e:
             print(e)
-            raise Exception('Error with adding track to playlist: {}'.format(playlist_id))
+            raise DeezerError('Error with adding track to playlist: {}'.format(playlist_id))
 
     def generate_tracks(self, count_tracks):
         user_playlist = self.get_playlist()
@@ -161,7 +161,7 @@ class DeezerPlayListCreator:
                             .format(playlist_id, self.token))
         except Exception as e:
             print(e)
-            raise Exception('Error with deleting playlist: {}'.format(playlist_id))
+            raise DeezerError('Error with deleting playlist: {}'.format(playlist_id))
 
     def delete_track(self, playlist_id, track_id):
         try:
@@ -169,15 +169,4 @@ class DeezerPlayListCreator:
                             .format(playlist_id, self.token, track_id))
         except Exception as e:
             print(e)
-            raise Exception('Error with deleting playlist: {}'.format(track_id))
-
-
-if __name__ == '__main__':
-    cp = DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'https://github.com/ElinaValieva',
-                               'delete_library')
-    tracks = cp.generate_tracks(15)
-    playlist = cp.create_playlist('Deezer Playlist')
-    for track in tracks:
-        cp.add_track_to_playlist(playlist.id, track.id)
-    cp.delete_track(playlist.id, tracks[0].id)
-    cp.delete_playlist(playlist.id)
+            raise DeezerError('Error with deleting playlist: {}'.format(track_id))

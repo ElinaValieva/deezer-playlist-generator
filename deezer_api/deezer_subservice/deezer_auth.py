@@ -3,6 +3,8 @@ import webbrowser
 
 import requests
 
+from deezer_api.deezer_subservice.deezer_objects import DeezerAuthorizationError
+
 
 class DeezerOAuth:
 
@@ -56,4 +58,5 @@ class DeezerOAuth:
             return self.token
         except Exception as e:
             print("Error with authentication due to: {}".format(e))
-            raise Exception("Unauthorized. Check authentication parameters and that access code was not used before")
+            raise DeezerAuthorizationError(
+                "Unauthorized. Check authentication parameters and that access code was not used before")

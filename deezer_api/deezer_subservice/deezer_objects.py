@@ -50,3 +50,15 @@ def parse_tracks(tracks_data):
             value.append(track.id)
             playlist[key] = value
     return tracks
+
+
+class DeezerError(Exception):
+    pass
+
+
+class DeezerAuthorizationError(Exception):
+    pass
+
+
+class DeezerPermissionDeniedError(Exception):
+    pass
