@@ -1,2 +1,6 @@
-.idea
+.idea/
+music/
 venv/
+album/
+__pycache__/
+test.py

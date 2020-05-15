@@ -6,7 +6,7 @@ import requests
 import tqdm
 from PIL import ImageTk, Image
 
-import deezer
+from deezer_api import DeezerPlayListCreator
 
 
 class Downloader:
@@ -118,7 +118,7 @@ class PlayerUI:
 
 
 if __name__ == '__main__':
-    cp = deezer.DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'fr1d6fa6ab09b037303e8311de70fa25')
+    cp = DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'fr1d6fa6ab09b037303e8311de70fa25')
     MAX_SIZE = 5
     tracks = cp.generate_tracks(MAX_SIZE)
     sound_tracks = Downloader().download(tracks)
