@@ -5,26 +5,15 @@ import time
 import requests
 import tqdm
 
+import deezer_auth
 import playlist
 
 
 class DeezerPlayListCreator:
 
-    def __init__(self, app_id, secret, code):
-        self.app_id = app_id
-        self.secret = secret
-        self.code = code
-        self.token = self.__generate_auth_token()
+    def __init__(self, app_id, secret, redirect_url, access='manage_library'):
+        self.token = deezer_auth.DeezerOAuth(app_id, secret, access, redirect_url).get_access_token()
         self.user_id = self.__user_id()
-
-    def __generate_auth_token(self):
-        try:
-            response = requests.get('https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}'
-                                    .format(self.app_id, self.secret, self.code))
-            return re.search('access_token=(.+?)&expires', response.text).group(1)
-        except Exception as e:
-            print("Error with authentication due to: {}".format(e))
-            raise Exception("Unauthorized. Check authentication parameters and that access code was not used before")
 
     def __user_id(self):
         response = requests.get('https://api.deezer.com/user/me?access_token={}'.format(self.token))
@@ -137,7 +126,7 @@ class DeezerPlayListCreator:
 
 
 if __name__ == '__main__':
-    cp = DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'fr71141fdc01e9d5fddf07405cb5a80b')
+    cp = DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'https://github.com/ElinaValieva')
     tracks = cp.generate_tracks(15)
     playlist = cp.create_playlist('Deezer Playlist')
     for track in tracks:
