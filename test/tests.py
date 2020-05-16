@@ -7,55 +7,63 @@ from deezer_api.deezer_subservice import DeezerError
 class DeezerBasicAccess(unittest.TestCase):
 
     def setUp(self):
-        self.deezer = DeezerApi().deezer
+        self.client = DeezerApi().deezer
 
     def test_get_user(self):
-        user = self.deezer.get_user(2149084062)
+        user = self.client.get_user(2149084062)
         self.assertEqual('Элина.Валиева', user.name, 'User was not the same')
 
     def test_get_artist(self):
-        artist = self.deezer.get_artist(27)
+        artist = self.client.get_artist(27)
         self.assertEqual('Daft Punk', artist.name, 'Artist was not the same')
 
     def test_get_track(self):
-        track = self.deezer.get_track(3135556)
+        track = self.client.get_track(3135556)
         self.assertEqual('Harder, Better, Faster, Stronger', track.title, 'Track was not the same')
 
     def test_get_album(self):
-        album = self.deezer.get_album(302127)
+        album = self.client.get_album(302127)
         self.assertEqual('Discovery', album.title, 'Album was not the same')
 
     def test_get_playlist(self):
-        playlist = self.deezer.get_playlist(908622995)
+        playlist = self.client.get_playlist(908622995)
         self.assertEqual('Bain moussant', playlist.title, 'Playlist was not the same')
 
+    def test_get_artist_tracks(self):
+        tracks = self.client.get_artist_tracks(27, 5)
+        self.assertTrue(len(tracks) == 5)
+
+    def test_get_related_artists(self):
+        artists = self.client.get_related_artists(27)
+        self.assertTrue(len(artists) > 0)
+
     def test_search_query(self):
-        searches = self.deezer.search_query('eminem')
+        searches = self.client.search_query('eminem')
         self.assertTrue(len(searches) > 0)
 
     def test_search_album_query(self):
-        searches = self.deezer.search_query('eminem', 'album')
+        searches = self.client.search_query('eminem', 'album')
         self.assertTrue(len(searches) > 0)
 
     def test_search_artist_query(self):
-        searches = self.deezer.search_query('eminem', 'artist')
+        searches = self.client.search_query('eminem', 'artist')
         self.assertTrue(len(searches) > 0)
 
     def test_search_playlist_query(self):
-        searches = self.deezer.search_query('eminem', 'playlist')
+        searches = self.client.search_query('eminem', 'playlist')
         self.assertTrue(len(searches) > 0)
 
     def test_search_track_query(self):
-        searches = self.deezer.search_query('eminem', 'track')
+        searches = self.client.search_query('eminem', 'track')
         self.assertTrue(len(searches) > 0)
 
     def test_search_user_query(self):
-        searches = self.deezer.search_query('eminem', 'user')
+        searches = self.client.search_query('eminem', 'user')
         self.assertTrue(len(searches) > 0)
 
     def test_search_wrong_query(self):
         with self.assertRaises(DeezerError):
-            self.deezer.search_query('eminem', 'wrong')
+            self.client.search_query('eminem', 'wrong')
 
 
 if __name__ == '__main__':

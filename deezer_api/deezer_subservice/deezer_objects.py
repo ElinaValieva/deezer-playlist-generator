@@ -9,23 +9,24 @@ class Artist:
     def __init__(self, data):
         if data is None:
             return
-
-        self.id = data.get('id', None)
-        self.name = data.get('name', None)
-        self.picture = data.get('picture', None)
-        self.picture_small = data.get('picture_small', None)
-        self.picture_medium = data.get('picture_medium', None)
-        self.picture_big = data.get('picture_big', None)
-        self.picture_xl = data.get('picture_xl', None)
-        self.share = data.get('share', None)
-        self.number_album = data.get('nb_album', None)
-        self.number_fun = data.get('nb_fan', None)
-        self.radio = data.get('radio', False)
-        self.role = data.get('role', 'Main')
-
-    def from_html(self, data):
-        self.id = data.get('ART_ID', None)
-        self.name = data.get('ART_NAME', None)
+        if data.get('ART_ID', None) is not None:
+            self.id = data.get('ART_ID', None)
+            self.name = data.get('ART_NAME', None)
+            self.picture = data.get('ART_PICTURE', None)
+            self.number_fun = data.get('NB_FAN', None)
+        else:
+            self.id = data.get('id', None)
+            self.name = data.get('name', 'ART_NAME')
+            self.picture = data.get('picture', None)
+            self.picture_small = data.get('picture_small', None)
+            self.picture_medium = data.get('picture_medium', None)
+            self.picture_big = data.get('picture_big', None)
+            self.picture_xl = data.get('picture_xl', None)
+            self.share = data.get('share', None)
+            self.number_album = data.get('nb_album', None)
+            self.number_fun = data.get('nb_fan', None)
+            self.radio = data.get('radio', False)
+            self.role = data.get('role', 'Main')
 
 
 class Album:

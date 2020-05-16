@@ -84,8 +84,8 @@ class DeezerBasicAccess:
             raise DeezerError('Error with loading related artists: {}'.format(response.reason))
         playlist_data = DeezerParser.parse_html(response)['RELATED_ARTISTS']['data']
         result = []
-        for data in playlist_data:
-            result.append(Artist.from_html(data))
+        for p in playlist_data:
+            result.append(Artist(p))
         return result
 
     @staticmethod
