@@ -94,7 +94,7 @@ class PlayList:
         self.fans = data.get('fans', None)
         self.share = data.get('share', None)
         self.checksum = data.get('checksum', None)
-        self.tracks = DeezerParser.parse_tracks(data['tracks']['data'])
+        self.tracks = DeezerParser.parse_tracks(data.get('tracks', {}).get('data', []))
 
 
 class User:
@@ -113,7 +113,14 @@ class User:
 class Search:
     def __init__(self, data):
         self.id = data.get('id', None)
+        self.readable = data.get('readable', None)
         self.title = data.get('title', None)
+        self.duration = data.get('duration', None)
+        self.rank = data.get('rank', None)
+        self.explicit_lyrics = data.get('explicit_lyrics', None)
+        self.preview = data.get('preview', None)
+        self.artist = Artist(data.get('artist', None))
+        self.album = Album(data.get('album', None))
 
 
 class DeezerUrl:
@@ -166,6 +173,21 @@ class DeezerParser:
             for contributor in contributors_data:
                 contributors.append(Artist(contributor))
         return contributors
+
+    @staticmethod
+    def parse_searches(search, method):
+        if method == '':
+            return Search(search)
+        if method == 'album':
+            return Album(search)
+        if method == 'artist':
+            return Artist(search)
+        if method == 'playlist':
+            return PlayList(search)
+        if method == 'track':
+            return Track(search)
+        if method == 'user':
+            return User(search)
 
 
 class DeezerError(Exception):

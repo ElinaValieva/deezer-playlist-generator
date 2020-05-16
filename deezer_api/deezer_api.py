@@ -84,8 +84,8 @@ class DeezerBasicAccess:
             raise DeezerError('Error with loading related artists: {}'.format(response.reason))
         playlist_data = DeezerParser.parse_html(response)['RELATED_ARTISTS']['data']
         result = []
-        for p in playlist_data:
-            result.append(Artist.from_html(p))
+        for data in playlist_data:
+            result.append(Artist.from_html(data))
         return result
 
     @staticmethod
@@ -98,12 +98,14 @@ class DeezerBasicAccess:
 
     @staticmethod
     def search_query(query_parameter, method=""):
-        try:
-            method = method if method == '' else '/{}'.format(method)
-            response = requests.get(DeezerUrl.SearchUrl.format(method, query_parameter))
-            return Search(response.json())
-        except Exception:
-            raise DeezerError('Error with searching: {}'.format(query_parameter))
+        method_type = method if method == '' else '/{}'.format(method)
+        response = requests.get(DeezerUrl.SearchUrl.format(method_type, query_parameter))
+        if response.status_code != 200 or response.json().get('error', None) is not None:
+            raise DeezerError('Unsupported operation method: {}'.format(method))
+        searches = []
+        for search in response.json().get('data', []):
+            searches.append(DeezerParser.parse_searches(search, method))
+        return searches
 
 
 class DeezerManageAccess(DeezerBasicAccess):
