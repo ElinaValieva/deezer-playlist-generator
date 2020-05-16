@@ -1,1 +1,1 @@
-from deezer_api.deezer import DeezerPlayListCreator
+from deezer_api.deezer_api import DeezerApi, Access

@@ -1,3 +1,6 @@
+import json
+import re
+
 playlist = {}
 
 
@@ -37,6 +40,12 @@ class User:
         self.id = user_data['id']
 
 
+class Search:
+    def __init__(self, data):
+        self.id = data.get('id', None)
+        self.title = data.get('title', None)
+
+
 def parse_tracks(tracks_data):
     tracks = []
     for t in tracks_data:
@@ -50,6 +59,17 @@ def parse_tracks(tracks_data):
             value.append(track.id)
             playlist[key] = value
     return tracks
+
+
+class DeezerParser:
+
+    @staticmethod
+    def parse_html(response):
+        try:
+            return json.loads(re.search('<script>window.__DZR_APP_STATE__ =(.+?)</script>',
+                                        response.content.decode("utf-8")).group(1))
+        except Exception as e:
+            raise DeezerError('Html content was change: {}'.format(e))
 
 
 class DeezerError(Exception):
