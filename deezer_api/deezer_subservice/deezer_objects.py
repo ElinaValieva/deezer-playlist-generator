@@ -143,6 +143,24 @@ class DeezerUrl:
     CodeGenerationUrl = 'https://connect.deezer.com/oauth/auth.php?app_id={}&redirect_uri={}&perms={}'
 
 
+class DeezerErrorMessage:
+    UnsupportedAccess = 'Unsupported access: {}. Please, use one of this {}, {}, {}.'
+    ArtistNotFound = 'Can not get artist with id {}. Please, make sure, that artist with provided id, exist.'
+    TrackNotFound = 'Can not get track with id {}. Please, make sure, that track with provided id, exist.'
+    AlbumNotFound = 'Can not get album with id {}. Please, make sure, that album with provided id, exist.'
+    PlaylistNotFound = 'Can not get playlist with id {}. Please, make sure, that playlist with provided id, exist.'
+    UserNotFound = 'Can not get user with id {}. Please, make sure, that user with provided id, exist.'
+    SearchNotFound = '{} not found. Please, make sure, that provided method supported.'
+    SearchNotFoundAuth = 'Can not found your user info. Please try again.'
+    PlaylistNotFoundAuth = 'Can not load your playlist. Please try again.'
+    PlaylistNotCreated = 'Playlist {} was not created. Please try again.'
+    TrackNotAddedToPlaylist = 'Track with id {} was not added to playlist with id {}. Please, make sure that ' \
+                              'elements with provided id exists. '
+    DeletePlaylist = 'Playlist with id {} was not deleted. Please, make sure that playlist with provided id exist.'
+    DeleteTrack = 'Track with {} was not deleted from playlist with id {}. Please, make sure that elements with ' \
+                  'provided id exists. '
+
+
 class DeezerParser:
 
     @staticmethod
