@@ -136,6 +136,7 @@ class DeezerUrl:
     UserPlaylistUrl = 'https://www.deezer.com/ru/profile/{}/playlists'
     ProfilePlaylistUrl = 'https://www.deezer.com/ru/profile/{}/playlists'
     RestrictedPlayListUrl = 'https://api.deezer.com/playlist/{}?access_token={}'
+    RestrictedAddPlayListUrl = 'https://api.deezer.com/user/{}/playlists?access_token={}&title={}'
     RestrictedTrackUrl = 'https://api.deezer.com/playlist/{}/tracks?access_token={}&songs={}'
     RestrictedUserUrl = 'https://api.deezer.com/user/me?access_token={}'
     TokenUrl = 'https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}'

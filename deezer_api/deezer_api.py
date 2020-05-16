@@ -70,9 +70,7 @@ class DeezerBasicAccess:
     @staticmethod
     def get_playlist(playlist_id):
         try:
-            url_format = DeezerUrl.PlayListUrl.format(playlist_id)
-            print(url_format)
-            response = requests.get(url_format)
+            response = requests.get(DeezerUrl.PlayListUrl.format(playlist_id))
             return PlayList(response.json())
         except Exception:
             raise DeezerError('Error with getting playlist by id: {}'.format(playlist_id))
@@ -135,7 +133,7 @@ class DeezerManageAccess(DeezerBasicAccess):
 
     def create_playlist(self, title):
         try:
-            response = requests.post(DeezerUrl.RestrictedPlayListUrl.format(self.user_id, self.token, title))
+            response = requests.post(DeezerUrl.RestrictedAddPlayListUrl.format(self.user_id, self.token, title))
             playlist_id = response.json()['id']
             return self.get_playlist(playlist_id)
         except Exception:
