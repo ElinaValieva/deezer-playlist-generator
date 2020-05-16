@@ -5,44 +5,118 @@ playlist = {}
 
 
 class Artist:
-    def __init__(self, artist_id, artist_name):
-        self.id = artist_id
-        self.name = artist_name
+
+    def __init__(self, data):
+        if data is None:
+            return
+
+        self.id = data.get('id', None)
+        self.name = data.get('name', None)
+        self.picture = data.get('picture', None)
+        self.picture_small = data.get('picture_small', None)
+        self.picture_medium = data.get('picture_medium', None)
+        self.picture_big = data.get('picture_big', None)
+        self.picture_xl = data.get('picture_xl', None)
+        self.share = data.get('share', None)
+        self.number_album = data.get('nb_album', None)
+        self.number_fun = data.get('nb_fan', None)
+        self.radio = data.get('radio', False)
+        self.role = data.get('role', 'Main')
+
+    def from_html(self, data):
+        self.id = data.get('ART_ID', None)
+        self.name = data.get('ART_NAME', None)
 
 
 class Album:
     def __init__(self, album):
-        self.id = album['id']
-        self.title = album['title']
-        self.preview = album['cover_medium']
+        self.id = album.get('id', None)
+        self.title = album.get('title', None)
+        self.upc = album.get('upc', None)
+        self.share = album.get('share', None)
+        self.cover = album.get('cover', None)
+        self.cover_small = album.get('cover_small', None)
+        self.cover_medium = album.get('cover_medium', None)
+        self.cover_big = album.get('cover_big', None)
+        self.cover_xl = album.get('cover_xl', None)
+        self.genre_id = album.get('genre_id', None)
+        self.label = album.get('label', None)
+        self.fans = album.get('fans', None)
+        self.release_date = album.get('release_date', None)
+        self.nb_tracks = album.get('nb_tracks', None)
+        self.rating = album.get('rating', None)
+        self.duration = album.get('duration', None)
+        self.available = album.get('available', False)
+        self.artist = Artist(album.get('artist', None))
+        self.contributors = DeezerParser.append_contributors(album.get('contributors', None))
 
 
 class Track:
     def __init__(self, track):
-        self.id = track['id']
-        self.title = track['title']
-        self.artist = Artist(track['artist']['id'], track['artist']['name'])
-        self.album = Album(track['album'])
-        self.preview = track['preview']
-        self.link = track['link']
+        self.id = track.get('id', None)
+        self.title = track.get('title', None)
+        self.isrc = track.get('isrc', None)
+        self.link = track.get('link', None)
+        self.share = track.get('share', None)
+        self.duration = track.get('duration', None)
+        self.track_position = track.get('track_position', None)
+        self.disk_number = track.get('disk_number', None)
+        self.rank = track.get('rank', None)
+        self.release_date = track.get('release_date', None)
+        self.explicit_lyrics = track.get('explicit_lyrics', False)
+        self.explicit_content_lyrics = track.get('explicit_content_lyrics', 0)
+        self.explicit_content_cover = track.get('explicit_content_cover', 0)
+        self.bpm = track.get('bpm', None)
+        self.gain = track.get('gain', None)
+        self.artist = Artist(track.get('artist', None))
+        self.album = Album(track.get('album', None))
+        self.preview = track.get('preview', None)
+        self.available_countries = track.get('available_countries')
+        self.contributors = DeezerParser.append_contributors(track.get('contributors', None))
 
 
 class PlayList:
-    def __init__(self, play_list):
-        self.id = play_list['id']
-        self.title = play_list['title']
-        self.creation_date = play_list['creation_date']
-        self.tracks = DeezerParser.parse_tracks(play_list['tracks']['data'])
+    def __init__(self, data):
+        self.id = data.get('id', None)
+        self.title = data.get('title', None)
+        self.description = data.get('description', None)
+        self.duration = data.get('duration', None)
+        self.public = data.get('public', False)
+        self.is_loved_track = data.get('is_loved_track', False)
+        self.collaborative = data.get('collaborative', False)
+        self.picture = data.get('picture', None)
+        self.picture_small = data.get('picture_small', None)
+        self.picture_medium = data.get('picture_medium', None)
+        self.picture_big = data.get('picture_big', None)
+        self.picture_xl = data.get('picture_xl', None)
+        self.creation_date = data.get('creation_date', None)
+        self.nb_tracks = data.get('nb_tracks', None)
+        self.fans = data.get('fans', None)
+        self.share = data.get('share', None)
+        self.checksum = data.get('checksum', None)
+        self.tracks = DeezerParser.parse_tracks(data['tracks']['data'])
 
 
 class User:
-    def __init__(self, user_data):
-        self.id = user_data['id']
+    def __init__(self, data):
+        self.id = data.get('id', None)
+        self.name = data.get('name', None)
+        self.picture = data.get('picture', None)
+        self.picture_small = data.get('picture_small', None)
+        self.picture_medium = data.get('picture_medium', None)
+        self.picture_big = data.get('picture_big', None)
+        self.picture_xl = data.get('picture_xl', None)
+        self.country = data.get('country', None)
+        self.tracklist = data.get('tracklist', None)
 
 
-class DeezerApi:
-    TokenUrl = 'https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}'
-    CodeGenerationUrl = 'https://connect.deezer.com/oauth/auth.php?app_id={}&redirect_uri={}&perms={}'
+class Search:
+    def __init__(self, data):
+        self.id = data.get('id', None)
+        self.title = data.get('title', None)
+
+
+class DeezerUrl:
     ArtistUrl = 'https://api.deezer.com/artist/{}'
     TrackUrl = 'https://api.deezer.com/track/{}'
     AlbumUrl = 'https://api.deezer.com/album/{}'
@@ -56,12 +130,8 @@ class DeezerApi:
     RestrictedPlayListUrl = 'https://api.deezer.com/playlist/{}?access_token={}'
     RestrictedTrackUrl = 'https://api.deezer.com/playlist/{}/tracks?access_token={}&songs={}'
     RestrictedUserUrl = 'https://api.deezer.com/user/me?access_token={}'
-
-
-class Search:
-    def __init__(self, data):
-        self.id = data.get('id', None)
-        self.title = data.get('title', None)
+    TokenUrl = 'https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}'
+    CodeGenerationUrl = 'https://connect.deezer.com/oauth/auth.php?app_id={}&redirect_uri={}&perms={}'
 
 
 class DeezerParser:
@@ -89,14 +159,18 @@ class DeezerParser:
                 playlist[key] = value
         return tracks
 
+    @staticmethod
+    def append_contributors(contributors_data):
+        contributors = []
+        if contributors_data is not None:
+            for contributor in contributors_data:
+                contributors.append(Artist(contributor))
+        return contributors
+
 
 class DeezerError(Exception):
     pass
 
 
 class DeezerAuthorizationError(Exception):
-    pass
-
-
-class DeezerPermissionDeniedError(Exception):
     pass

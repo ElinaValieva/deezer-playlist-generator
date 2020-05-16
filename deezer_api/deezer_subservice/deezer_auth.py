@@ -3,7 +3,7 @@ import webbrowser
 
 import requests
 
-from deezer_api.deezer_subservice.deezer_objects import DeezerAuthorizationError, DeezerApi
+from deezer_api.deezer_subservice.deezer_objects import DeezerAuthorizationError, DeezerUrl
 
 
 class DeezerOAuth:
@@ -24,7 +24,7 @@ class DeezerOAuth:
         return self.__generate_auth_token(code)
 
     def __get_auth_code(self):
-        auth = DeezerApi.CodeGenerationUrl.format(self.client_id, self.redirect_url, self.scope)
+        auth = DeezerUrl.CodeGenerationUrl.format(self.client_id, self.redirect_url, self.scope)
         try:
             webbrowser.open(auth)
         except Exception:
@@ -46,7 +46,7 @@ class DeezerOAuth:
 
     def __generate_auth_token(self, code):
         try:
-            response = requests.get(DeezerApi.TokenUrl.format(self.client_id, self.client_secret, code)).text
+            response = requests.get(DeezerUrl.TokenUrl.format(self.client_id, self.client_secret, code)).text
             if response == 'wrong code':
                 raise Exception(
                     "Unauthorized. Check authentication parameters and that access code was not used before")
