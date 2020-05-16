@@ -32,7 +32,7 @@ class PlayList:
         self.id = play_list['id']
         self.title = play_list['title']
         self.creation_date = play_list['creation_date']
-        self.tracks = parse_tracks(play_list['tracks']['data'])
+        self.tracks = DeezerParser.parse_tracks(play_list['tracks']['data'])
 
 
 class User:
@@ -40,25 +40,28 @@ class User:
         self.id = user_data['id']
 
 
+class DeezerApi:
+    TokenUrl = 'https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}'
+    CodeGenerationUrl = 'https://connect.deezer.com/oauth/auth.php?app_id={}&redirect_uri={}&perms={}'
+    ArtistUrl = 'https://api.deezer.com/artist/{}'
+    TrackUrl = 'https://api.deezer.com/track/{}'
+    AlbumUrl = 'https://api.deezer.com/album/{}'
+    TopArtist = 'https://api.deezer.com/artist/{}/top?limit={}'
+    PlayListUrl = 'https://api.deezer.com/playlist/{}'
+    RelatedArtistUrl = 'https://www.deezer.com/ru/artist/{}/related_artist'
+    UserUrl = 'https://api.deezer.com/user/{}'
+    SearchUrl = 'https://api.deezer.com/search{}?q={}'
+    UserPlaylistUrl = 'https://www.deezer.com/ru/profile/{}/playlists'
+    ProfilePlaylistUrl = 'https://www.deezer.com/ru/profile/{}/playlists'
+    RestrictedPlayListUrl = 'https://api.deezer.com/playlist/{}?access_token={}'
+    RestrictedTrackUrl = 'https://api.deezer.com/playlist/{}/tracks?access_token={}&songs={}'
+    RestrictedUserUrl = 'https://api.deezer.com/user/me?access_token={}'
+
+
 class Search:
     def __init__(self, data):
         self.id = data.get('id', None)
         self.title = data.get('title', None)
-
-
-def parse_tracks(tracks_data):
-    tracks = []
-    for t in tracks_data:
-        track = Track(t)
-        tracks.append(track)
-        key = track.artist.id
-        value = playlist.get(key)
-        if value is None:
-            playlist[key] = [track.id]
-        else:
-            value.append(track.id)
-            playlist[key] = value
-    return tracks
 
 
 class DeezerParser:
@@ -70,6 +73,21 @@ class DeezerParser:
                                         response.content.decode("utf-8")).group(1))
         except Exception as e:
             raise DeezerError('Html content was change: {}'.format(e))
+
+    @staticmethod
+    def parse_tracks(tracks_data):
+        tracks = []
+        for t in tracks_data:
+            track = Track(t)
+            tracks.append(track)
+            key = track.artist.id
+            value = playlist.get(key)
+            if value is None:
+                playlist[key] = [track.id]
+            else:
+                value.append(track.id)
+                playlist[key] = value
+        return tracks
 
 
 class DeezerError(Exception):

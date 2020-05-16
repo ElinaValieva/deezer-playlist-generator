@@ -3,8 +3,7 @@ import time
 import requests
 import tqdm
 
-from deezer_api.deezer_subservice import Artist, DeezerError, Track, Album, playlist, PlayList, User, Search, \
-    deezer_auth, DeezerParser
+from deezer_api.deezer_subservice import *
 
 
 class Access:
@@ -33,7 +32,7 @@ class DeezerBasicAccess:
     @staticmethod
     def get_artist(artist_id):
         try:
-            response = requests.get('https://api.deezer.com/artist/{}'.format(artist_id))
+            response = requests.get(DeezerApi.ArtistUrl.format(artist_id))
             return Artist(response.json()['id'], response.json()['name'])
         except Exception:
             raise DeezerError('Error with getting artist by id: {}'.format(artist_id))
@@ -41,7 +40,7 @@ class DeezerBasicAccess:
     @staticmethod
     def get_track(track_id):
         try:
-            response = requests.get('https://api.deezer.com/track/{}'.format(track_id))
+            response = requests.get(DeezerApi.TrackUrl.format(track_id))
             return Track(response.json())
         except Exception:
             raise DeezerError('Error with getting track by id: {}'.format(track_id))
@@ -49,14 +48,14 @@ class DeezerBasicAccess:
     @staticmethod
     def get_album(album_id):
         try:
-            response = requests.get('https://api.deezer.com/album/{}'.format(album_id))
+            response = requests.get(DeezerApi.AlbumUrl.format(album_id))
             return Album(response.json())
         except Exception:
             raise DeezerError('Error with getting album by id: {}'.format(album_id))
 
     @staticmethod
     def get_artist_tracks(artist_id, limit=10):
-        response = requests.get('https://api.deezer.com/artist/{}/top?limit={}'.format(artist_id, limit))
+        response = requests.get(DeezerApi.TopArtist.format(artist_id, limit))
         if response.status_code != 200 or response.json().get('error', None) is not None:
             raise DeezerError('Error with loading playlist: {}'.format(response.reason))
         response_data = response.json()['data']
@@ -71,13 +70,14 @@ class DeezerBasicAccess:
     @staticmethod
     def get_playlist(playlist_id):
         try:
-            response = requests.get('https://api.deezer.com/playlist/{}'.format(playlist_id))
+            response = requests.get(DeezerApi.PlayListUrl.format(playlist_id))
             return PlayList(response.json())
         except Exception:
             raise DeezerError('Error with getting playlist by id: {}'.format(playlist_id))
 
-    def get_related_artists(self, artist_id):
-        response = requests.get('https://www.deezer.com/ru/artist/{}/related_artist'.format(artist_id))
+    @staticmethod
+    def get_related_artists(artist_id):
+        response = requests.get(DeezerApi.RelatedArtistUrl.format(artist_id))
         if response.status_code != 200:
             raise DeezerError('Error with loading related artists: {}'.format(response.reason))
         playlist_data = DeezerParser.parse_html(response)['RELATED_ARTISTS']['data']
@@ -89,7 +89,7 @@ class DeezerBasicAccess:
     @staticmethod
     def get_user(user_id):
         try:
-            response = requests.get('https://api.deezer.com/user/{}'.format(user_id))
+            response = requests.get(DeezerApi.UserUrl.format(user_id))
             return User(response.json())
         except Exception:
             raise DeezerError('Error with user by id: {}'.format(user_id))
@@ -98,7 +98,7 @@ class DeezerBasicAccess:
     def search_track(query_parameter, method=""):
         try:
             method = method if method == '' else '/{}'.format(method)
-            response = requests.get('https://api.deezer.com/search{}?q={}'.format(method, query_parameter))
+            response = requests.get(DeezerApi.SearchUrl.format(method, query_parameter))
             return Search(response.json())
         except Exception:
             raise DeezerError('Error with searching: {}'.format(query_parameter))
@@ -111,13 +111,13 @@ class DeezerManageAccess(DeezerBasicAccess):
         self.user_id = self.get_user_me().id
 
     def get_user_me(self):
-        response = requests.get('https://api.deezer.com/user/me?access_token={}'.format(self.token))
+        response = requests.get(DeezerApi.RestrictedUserUrl.format(self.token))
         if response.status_code != 200 or response.json().get('error', None) is not None:
             raise Exception('Error with getting user info: {}'.format(response.reason))
         return User(response.json())
 
     def get_my_playlist(self):
-        response = requests.get('https://www.deezer.com/ru/profile/{}/playlists'.format(self.user_id))
+        response = requests.get(DeezerApi.ProfilePlaylistUrl.format(self.user_id))
         if response.status_code != 200:
             raise DeezerError('Error with loading playlist: {}'.format(response.reason))
         playlist_data = DeezerParser.parse_html(response)['TAB']['playlists']['data']
@@ -131,8 +131,7 @@ class DeezerManageAccess(DeezerBasicAccess):
 
     def create_playlist(self, title):
         try:
-            response = requests.post('https://api.deezer.com/user/{}/playlists?access_token={}&title={}'
-                                     .format(self.user_id, self.token, title))
+            response = requests.post(DeezerApi.RestrictedPlayListUrl.format(self.user_id, self.token, title))
             playlist_id = response.json()['id']
             return self.get_playlist(playlist_id)
         except Exception:
@@ -140,8 +139,7 @@ class DeezerManageAccess(DeezerBasicAccess):
 
     def add_track_to_playlist(self, playlist_id, track_id):
         try:
-            requests.post('https://api.deezer.com/playlist/{}/tracks?access_token={}&songs={}'
-                          .format(playlist_id, self.token, track_id))
+            requests.post(DeezerApi.RestrictedTrackUrl.format(playlist_id, self.token, track_id))
         except Exception:
             raise DeezerError('Error with adding track to playlist: {}'.format(playlist_id))
 
@@ -156,7 +154,7 @@ class DeezerManageAccess(DeezerBasicAccess):
         return self.__get_tracks(all_tracks, count_tracks)
 
     def get_user_playlist(self):
-        response = requests.get('https://www.deezer.com/ru/profile/{}/playlists'.format(self.user_id))
+        response = requests.get(DeezerApi.UserPlaylistUrl.format(self.user_id))
         if response.status_code != 200:
             raise DeezerError('Error with loading playlist: {}'.format(response.reason))
         playlist_data = DeezerParser.parse_html(response)['TAB']['playlists']['data']
@@ -197,13 +195,12 @@ class DeezerDeleteAccess(DeezerManageAccess):
 
     def delete_playlist(self, playlist_id):
         try:
-            requests.delete('https://api.deezer.com/playlist/{}?access_token={}'.format(playlist_id, self.token))
+            requests.delete(DeezerApi.RestrictedPlayListUrl.format(playlist_id, self.token))
         except Exception:
             raise DeezerError('Error with deleting playlist: {}'.format(playlist_id))
 
     def delete_track(self, playlist_id, track_id):
         try:
-            requests.delete('https://api.deezer.com/playlist/{}/tracks?access_token={}&songs={}'
-                            .format(playlist_id, self.token, track_id))
+            requests.delete(DeezerApi.RestrictedTrackUrl.format(playlist_id, self.token, track_id))
         except Exception:
             raise DeezerError('Error with deleting playlist: {}'.format(track_id))
