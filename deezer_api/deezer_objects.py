@@ -165,6 +165,7 @@ class DeezerErrorMessage:
     WrongAuthParameters = 'Parameters: app_id = {}, secret = {}, redirected_url = {} are required for access = {}'
     Unauthorized = 'Unauthorized. Check authentication parameters and that access code was not used before'
     TokenExpired = 'Token was expired. Generate again'
+    PermissionDenied = 'With permission: {} you can not {}'
 
 
 class DeezerParser:

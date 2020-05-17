@@ -6,7 +6,7 @@ from deezer_api import DeezerApi, DeezerPlayer, DeezerError, Access
 class DeezerBasicAccess(unittest.TestCase):
 
     def setUp(self):
-        self.client = DeezerApi().deezer
+        self.client = DeezerApi()
 
     def test_get_user(self):
         user = self.client.get_user(2149084062)
@@ -74,7 +74,39 @@ class DeezerBasicAccess(unittest.TestCase):
 
     def test_deezer_api(self):
         with self.assertRaises(DeezerError):
-            DeezerApi('', '', access=Access.DELETE).deezer.get_user_me()
+            DeezerApi('', '', access=Access.DELETE).get_user_me()
+
+    def test_for_permission_denied_for_generating_tracks(self):
+        with self.assertRaises(DeezerError):
+            self.client.generate_tracks(50)
+
+    def test_for_permission_denied_for_get_my_playlist(self):
+        with self.assertRaises(DeezerError):
+            self.client.get_my_playlist()
+
+    def test_for_permission_denied_for_delete_track(self):
+        with self.assertRaises(DeezerError):
+            self.client.delete_track(50, 10)
+
+    def test_for_permission_denied_for_delete_playlist(self):
+        with self.assertRaises(DeezerError):
+            self.client.delete_playlist(50)
+
+    def test_for_permission_denied_for_create_playlist(self):
+        with self.assertRaises(DeezerError):
+            self.client.create_playlist('test')
+
+    def test_for_permission_denied_for_get_favourites_artists_by_playlist_id(self):
+        with self.assertRaises(DeezerError):
+            self.client.get_favourites_artists_by_playlist_id('test')
+
+    def test_for_permission_denied_for_add_track_to_playlist(self):
+        with self.assertRaises(DeezerError):
+            self.client.add_track_to_playlist(50, 10)
+
+    def test_for_permission_denied_for_get_user_me(self):
+        with self.assertRaises(DeezerError):
+            self.client.get_user_me()
 
 
 if __name__ == '__main__':

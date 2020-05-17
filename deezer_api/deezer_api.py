@@ -15,9 +15,12 @@ class Access:
 
 class DeezerApi:
 
-    def __init__(self, app_id=None, secret=None, code=None, redirect_url=None, token=None, expired=3600, access=Access.BASIC):
+    def __init__(self, app_id=None, secret=None, code=None, redirect_url=None, token=None, expired=3600,
+                 access=Access.BASIC):
+        self.__access = access
+
         if access == Access.BASIC:
-            self.deezer = DeezerBasicAccess()
+            self.__client = DeezerBasicAccess()
 
         elif access == Access.MANAGE or access == Access.DELETE:
             if token is not None:
@@ -27,10 +30,76 @@ class DeezerApi:
             else:
                 oauth = DeezerOAuth(app_id, secret, access, redirect_url)
 
-            self.deezer = DeezerManageAccess(oauth) if access == Access.MANAGE else DeezerDeleteAccess(oauth)
+            self.__client = DeezerManageAccess(oauth) if access == Access.MANAGE else DeezerDeleteAccess(oauth)
         else:
             raise DeezerError(DeezerErrorMessage.UnsupportedAccess
                               .format(access, Access.BASIC, Access.MANAGE, Access.DELETE))
+
+    def get_artist(self, artist_id):
+        return self.__client.get_artist(artist_id)
+
+    def get_track(self, track_id):
+        return self.__client.get_track(track_id)
+
+    def get_album(self, album_id):
+        return self.__client.get_album(album_id)
+
+    def get_artist_tracks(self, artist_id, limit=10):
+        return self.__client.get_artist_tracks(artist_id, limit)
+
+    def get_playlist(self, playlist_id):
+        return self.__client.get_playlist(playlist_id)
+
+    def get_related_artists(self, artist_id):
+        return self.__client.get_related_artists(artist_id)
+
+    def get_user(self, user_id):
+        return self.__client.get_user(user_id)
+
+    def search_query(self, query_parameter, method=""):
+        return self.__client.search_query(query_parameter, method)
+
+    def get_user_me(self):
+        if self.__access == Access.BASIC:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'get your user information'))
+        return self.__client.get_user_me()
+
+    def get_my_playlist(self):
+        if self.__access == Access.BASIC:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'get yours playlist'))
+        return self.__client.get_my_playlist()
+
+    def create_playlist(self, title):
+        if self.__access == Access.BASIC:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'create playlist'))
+        return self.__client.create_playlist(title)
+
+    def add_track_to_playlist(self, playlist_id, track_id):
+        if self.__access == Access.BASIC:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'add track in playlist'))
+        return self.__client.add_track_to_playlist(playlist_id, track_id)
+
+    def generate_tracks(self, count_tracks):
+        if self.__access == Access.BASIC:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied
+                              .format(self.__access, 'generate tracks by yours preferences'))
+        return self.__client.generate_tracks(count_tracks)
+
+    def get_favourites_artists_by_playlist_id(self, user_playlist, count_tracks=50):
+        if self.__access == Access.BASIC:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied
+                              .format(self.__access, 'get favourites artist in your playlist'))
+        return self.__client.get_favourites_artists_by_playlist_id(user_playlist, count_tracks)
+
+    def delete_playlist(self, playlist_id):
+        if self.__access != Access.DELETE:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'delete playlist'))
+        return self.__client.delete_playlist(playlist_id)
+
+    def delete_track(self, playlist_id, track_id):
+        if self.__access != Access.DELETE:
+            raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'delete track'))
+        return self.__client.delete_track(playlist_id, track_id)
 
 
 class DeezerBasicAccess:
@@ -60,7 +129,7 @@ class DeezerBasicAccess:
             raise DeezerError(DeezerErrorMessage.AlbumNotFound.format(album_id))
 
     @staticmethod
-    def get_artist_tracks(artist_id, limit=10):
+    def get_artist_tracks(artist_id, limit):
         response = requests.get(DeezerUrl.TopArtist.format(artist_id, limit))
         if response.status_code != 200 or response.json().get('error', None) is not None:
             raise DeezerError(DeezerErrorMessage.ArtistNotFound.format(response.reason))
@@ -101,7 +170,7 @@ class DeezerBasicAccess:
             raise DeezerError(DeezerErrorMessage.UserNotFound.format(user_id))
 
     @staticmethod
-    def search_query(query_parameter, method=""):
+    def search_query(query_parameter, method):
         method_type = method if method == '' else '/{}'.format(method)
         response = requests.get(DeezerUrl.SearchUrl.format(method_type, query_parameter))
         if response.status_code != 200 or response.json().get('error', None) is not None:
@@ -153,29 +222,16 @@ class DeezerManageAccess(DeezerBasicAccess):
             raise DeezerError(DeezerErrorMessage.TrackNotAddedToPlaylist.format(track_id, playlist_id))
 
     def generate_tracks(self, count_tracks):
-        user_playlist = self.get_user_playlist()
+        user_playlist = self.get_my_playlist()
         user_artists = self.get_favourites_artists_by_playlist_id(user_playlist, count_tracks)
         count_artist = len(user_artists) if len(user_artists) <= count_tracks else count_tracks
         all_tracks = {}
         for i in tqdm.tqdm(range(count_artist), desc='Generating playlist'):
-            all_tracks[user_artists[i].name] = self.get_artist_tracks(user_artists[i].id)
+            all_tracks[user_artists[i].name] = self.get_artist_tracks(user_artists[i].id, count_tracks)
             time.sleep(0.01)
         return self.__get_tracks(all_tracks, count_tracks)
 
-    def get_user_playlist(self):
-        response = requests.get(DeezerUrl.UserPlaylistUrl.format(self.user_id))
-        if response.status_code != 200:
-            raise DeezerError(DeezerErrorMessage.PlaylistNotFoundAuth)
-        playlist_data = DeezerParser.parse_html(response)['TAB']['playlists']['data']
-        result = []
-        playlist_range = len(playlist_data)
-        for i in tqdm.tqdm(range(playlist_range), desc='Processing user playlist'):
-            playlist_id = playlist_data[i].get('PLAYLIST_ID', None)
-            result.append(self.get_playlist(playlist_id))
-            time.sleep(0.1)
-        return result
-
-    def get_favourites_artists_by_playlist_id(self, user_playlist, count_tracks=50):
+    def get_favourites_artists_by_playlist_id(self, user_playlist, count_tracks):
         artist = []
         for playList in user_playlist:
             for soundtrack in playList.tracks:
