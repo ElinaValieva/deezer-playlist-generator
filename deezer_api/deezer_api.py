@@ -19,8 +19,8 @@ class DeezerApi:
             self.deezer = DeezerBasicAccess()
 
         elif access == Access.MANAGE or access == Access.DELETE:
-            token = deezer_auth.DeezerOAuth(app_id, secret, access, redirect_url).get_access_token()
-            self.deezer = DeezerManageAccess(token) if access == Access.MANAGE else DeezerDeleteAccess(token)
+            oauth = deezer_auth.DeezerOAuth(app_id, secret, access, redirect_url)
+            self.deezer = DeezerManageAccess(oauth) if access == Access.MANAGE else DeezerDeleteAccess(oauth)
 
         else:
             raise DeezerError(
@@ -108,12 +108,12 @@ class DeezerBasicAccess:
 
 class DeezerManageAccess(DeezerBasicAccess):
 
-    def __init__(self, token):
-        self.token = token
+    def __init__(self, oauth):
+        self.oauth = oauth
         self.user_id = self.get_user_me().id
 
     def get_user_me(self):
-        response = requests.get(DeezerUrl.RestrictedUserUrl.format(self.token))
+        response = requests.get(DeezerUrl.RestrictedUserUrl.format(self.oauth.get_access_token()))
         if response.status_code != 200 or response.json().get('error', None) is not None:
             raise Exception(DeezerErrorMessage.SearchNotFoundAuth)
         return User(response.json())
@@ -133,7 +133,8 @@ class DeezerManageAccess(DeezerBasicAccess):
 
     def create_playlist(self, title):
         try:
-            response = requests.post(DeezerUrl.RestrictedAddPlayListUrl.format(self.user_id, self.token, title))
+            response = requests.post(
+                DeezerUrl.RestrictedAddPlayListUrl.format(self.user_id, self.oauth.get_access_token(), title))
             playlist_id = response.json()['id']
             return self.get_playlist(playlist_id)
         except Exception:
@@ -141,7 +142,7 @@ class DeezerManageAccess(DeezerBasicAccess):
 
     def add_track_to_playlist(self, playlist_id, track_id):
         try:
-            requests.post(DeezerUrl.RestrictedTrackUrl.format(playlist_id, self.token, track_id))
+            requests.post(DeezerUrl.RestrictedTrackUrl.format(playlist_id, self.oauth.get_access_token(), track_id))
         except Exception:
             raise DeezerError(DeezerErrorMessage.TrackNotAddedToPlaylist.format(track_id, playlist_id))
 
@@ -197,12 +198,12 @@ class DeezerDeleteAccess(DeezerManageAccess):
 
     def delete_playlist(self, playlist_id):
         try:
-            requests.delete(DeezerUrl.RestrictedPlayListUrl.format(playlist_id, self.token))
+            requests.delete(DeezerUrl.RestrictedPlayListUrl.format(playlist_id, self.oauth.get_access_token()))
         except Exception:
             raise DeezerError(DeezerErrorMessage.DeletePlaylist.format(playlist_id))
 
     def delete_track(self, playlist_id, track_id):
         try:
-            requests.delete(DeezerUrl.RestrictedTrackUrl.format(playlist_id, self.token, track_id))
+            requests.delete(DeezerUrl.RestrictedTrackUrl.format(playlist_id, self.oauth.get_access_token(), track_id))
         except Exception:
             raise DeezerError(DeezerErrorMessage.DeleteTrack.format(playlist_id, track_id))
