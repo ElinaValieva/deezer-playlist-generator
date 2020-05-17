@@ -36,70 +36,150 @@ class DeezerApi:
                               .format(access, Access.BASIC, Access.MANAGE, Access.DELETE))
 
     def get_artist(self, artist_id):
+        """
+        Get artist definition by id
+        :param artist_id: id
+        :return: Artist object
+        """
         return self.__client.get_artist(artist_id)
 
     def get_track(self, track_id):
+        """
+        Get track definition by id
+        :param track_id: id
+        :return: Track object
+        """
         return self.__client.get_track(track_id)
 
     def get_album(self, album_id):
+        """
+        Get album definition by id
+        :param album_id: id
+        :return: Album object
+        """
         return self.__client.get_album(album_id)
 
     def get_artist_tracks(self, artist_id, limit=10):
+        """
+        Get artist tracks
+        :param artist_id: id
+        :param limit: count tracks
+        :return: list Track objects
+        """
         return self.__client.get_artist_tracks(artist_id, limit)
 
     def get_playlist(self, playlist_id):
+        """
+        Get playlist by id
+        :param playlist_id: id
+        :return: Playlist object
+        """
         return self.__client.get_playlist(playlist_id)
 
     def get_related_artists(self, artist_id):
+        """
+        Get related artists to your artist by id
+        :param artist_id: id of your artist
+        :return: list Artist object
+        """
         return self.__client.get_related_artists(artist_id)
 
     def get_user(self, user_id):
+        """
+        Get user info by id
+        :param user_id: id
+        :return: User object
+        """
         return self.__client.get_user(user_id)
 
     def search_query(self, query_parameter, method=""):
+        """
+        Searching by query parameter and method
+        :param query_parameter: query string [eminem]
+        :param method: method name [empty/artist/user/playlist/track/album]
+        :return: method object if method not empty or Search object
+        """
         return self.__client.search_query(query_parameter, method)
 
     def get_user_me(self):
+        """
+        Get my info [access > Basic]
+        :return: User object
+        """
         if self.__access == Access.BASIC:
             raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'get your user information'))
         return self.__client.get_user_me()
 
     def get_my_playlist(self):
+        """
+        Get my playlist [access > Basic]
+        :return: list Playlist object
+        """
         if self.__access == Access.BASIC:
             raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'get yours playlist'))
         return self.__client.get_my_playlist()
 
     def create_playlist(self, title):
+        """
+        Create empty playlist [access > Basic]
+        :param title: name of playlist
+        :return: Playlist object
+        """
         if self.__access == Access.BASIC:
             raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'create playlist'))
         return self.__client.create_playlist(title)
 
     def add_track_to_playlist(self, playlist_id, track_id):
+        """
+        Add track to playlist [access > Basic]
+        :param playlist_id: playlist id
+        :param track_id: track id
+        """
         if self.__access == Access.BASIC:
             raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'add track in playlist'))
-        return self.__client.add_track_to_playlist(playlist_id, track_id)
+        self.__client.add_track_to_playlist(playlist_id, track_id)
 
     def generate_tracks(self, count_tracks):
+        """
+        Generate recommended tracks by your preferences in Deezer [access > Basic]
+        :param count_tracks: count recommendations
+        :return: list Track object
+        """
         if self.__access == Access.BASIC:
             raise DeezerError(DeezerErrorMessage.PermissionDenied
                               .format(self.__access, 'generate tracks by yours preferences'))
         return self.__client.generate_tracks(count_tracks)
 
     def get_favourites_artists_by_playlist_id(self, user_playlist, count_tracks=50):
+        """
+        Get your favourites artist in playlist [access > Basic]
+        :param user_playlist: playlist id
+        :param count_tracks: limit of artists
+        :return: list Artist object
+        """
         if self.__access == Access.BASIC:
             raise DeezerError(DeezerErrorMessage.PermissionDenied
                               .format(self.__access, 'get favourites artist in your playlist'))
         return self.__client.get_favourites_artists_by_playlist_id(user_playlist, count_tracks)
 
     def delete_playlist(self, playlist_id):
+        """
+        Delete playlist by id [access > Manage]
+        :param playlist_id: id
+        """
         if self.__access != Access.DELETE:
             raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'delete playlist'))
-        return self.__client.delete_playlist(playlist_id)
+        self.__client.delete_playlist(playlist_id)
 
     def delete_track(self, playlist_id, track_id):
+        """
+        Delete track in playlist by id [access > Manage]
+        :param playlist_id: playlist id
+        :param track_id: track id
+        """
         if self.__access != Access.DELETE:
             raise DeezerError(DeezerErrorMessage.PermissionDenied.format(self.__access, 'delete track'))
-        return self.__client.delete_track(playlist_id, track_id)
+        self.__client.delete_track(playlist_id, track_id)
 
 
 class DeezerBasicAccess:

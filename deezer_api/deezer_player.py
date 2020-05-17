@@ -6,7 +6,8 @@ import requests
 import tqdm
 from PIL import ImageTk, Image
 
-from deezer_api import DeezerError, DeezerErrorMessage
+from deezer_api import DeezerError
+from deezer_api.deezer_objects import DeezerErrorMessage
 
 
 class Downloader:
@@ -84,7 +85,7 @@ class PlayerControl:
 
 class DeezerPlayer:
 
-    def __init__(self, music_max_size, deezer_soundtracks):
+    def __init__(self, music_max_size=10, deezer_soundtracks=None):
         if deezer_soundtracks is None or len(deezer_soundtracks) == 0:
             raise DeezerError(DeezerErrorMessage.EmptySong)
         self.max_size = music_max_size
@@ -129,4 +130,7 @@ class DeezerPlayer:
         self.next_button.grid(row=1, column=3, padx=(10, 10), pady=(80, 10))
 
     def start(self):
+        """
+        Run generated recommendations from Deezer in player
+        """
         self.player.mainloop()
