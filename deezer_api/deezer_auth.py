@@ -3,7 +3,7 @@ import webbrowser
 
 import requests
 
-from deezer_api.deezer_subservice.deezer_objects import DeezerAuthorizationError, DeezerUrl
+from deezer_api.deezer_objects import DeezerAuthorizationError, DeezerUrl
 
 
 class DeezerOAuth:

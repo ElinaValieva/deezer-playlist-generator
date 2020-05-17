@@ -3,7 +3,8 @@ import time
 import requests
 import tqdm
 
-from deezer_api.deezer_subservice import *
+from deezer_api.deezer_objects import *
+from deezer_api.deezer_auth import DeezerOAuth
 
 
 class Access:
@@ -19,7 +20,7 @@ class DeezerApi:
             self.deezer = DeezerBasicAccess()
 
         elif access == Access.MANAGE or access == Access.DELETE:
-            oauth = deezer_auth.DeezerOAuth(app_id, secret, access, redirect_url)
+            oauth = DeezerOAuth(app_id, secret, access, redirect_url)
             self.deezer = DeezerManageAccess(oauth) if access == Access.MANAGE else DeezerDeleteAccess(oauth)
 
         else:

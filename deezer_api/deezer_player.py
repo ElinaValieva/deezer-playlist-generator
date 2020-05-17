@@ -6,7 +6,7 @@ import requests
 import tqdm
 from PIL import ImageTk, Image
 
-from deezer_api.deezer_subservice import DeezerError, DeezerErrorMessage
+from deezer_api import DeezerError, DeezerErrorMessage
 
 
 class Downloader:
