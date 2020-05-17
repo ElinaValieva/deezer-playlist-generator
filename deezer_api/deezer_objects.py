@@ -160,6 +160,11 @@ class DeezerErrorMessage:
     DeleteTrack = 'Track with {} was not deleted from playlist with id {}. Please, make sure that elements with ' \
                   'provided id exists. '
     EmptySong = 'Please, define songs for player. Song list could not be empty or undefined.'
+    WrongTokenAuthParameters = 'Parameter: token = {} is required for access = {}'
+    WrongTokenAppAuthParameters = 'Parameters: app_id = {}, secret = {}, code = {} are required for access = {}'
+    WrongAuthParameters = 'Parameters: app_id = {}, secret = {}, redirected_url = {} are required for access = {}'
+    Unauthorized = 'Unauthorized. Check authentication parameters and that access code was not used before'
+    TokenExpired = 'Token was expired. Generate again'
 
 
 class DeezerParser:
@@ -212,8 +217,4 @@ class DeezerParser:
 
 
 class DeezerError(Exception):
-    pass
-
-
-class DeezerAuthorizationError(Exception):
     pass

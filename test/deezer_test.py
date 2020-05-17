@@ -1,6 +1,6 @@
 import unittest
 
-from deezer_api import DeezerApi, DeezerPlayer, DeezerError
+from deezer_api import DeezerApi, DeezerPlayer, DeezerError, Access
 
 
 class DeezerBasicAccess(unittest.TestCase):
@@ -71,6 +71,10 @@ class DeezerBasicAccess(unittest.TestCase):
     def test_empty_list_song_for_player(self):
         with self.assertRaises(DeezerError):
             DeezerPlayer(5, {}).start()
+
+    def test_deezer_api(self):
+        with self.assertRaises(DeezerError):
+            DeezerApi('', '', access=Access.DELETE).deezer.get_user_me()
 
 
 if __name__ == '__main__':

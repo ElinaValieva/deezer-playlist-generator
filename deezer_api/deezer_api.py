@@ -3,8 +3,8 @@ import time
 import requests
 import tqdm
 
+from deezer_api.deezer_auth import DeezerOAuth, DeezerTokenAuth, DeezerTokenAppAuth
 from deezer_api.deezer_objects import *
-from deezer_api.deezer_auth import DeezerOAuth
 
 
 class Access:
@@ -15,17 +15,22 @@ class Access:
 
 class DeezerApi:
 
-    def __init__(self, app_id=None, secret=None, redirect_url=None, access=Access.BASIC):
+    def __init__(self, app_id=None, secret=None, code=None, redirect_url=None, token=None, expired=3600, access=Access.BASIC):
         if access == Access.BASIC:
             self.deezer = DeezerBasicAccess()
 
         elif access == Access.MANAGE or access == Access.DELETE:
-            oauth = DeezerOAuth(app_id, secret, access, redirect_url)
-            self.deezer = DeezerManageAccess(oauth) if access == Access.MANAGE else DeezerDeleteAccess(oauth)
+            if token is not None:
+                oauth = DeezerTokenAuth(token, access, expired)
+            elif code is not None:
+                oauth = DeezerTokenAppAuth(app_id, secret, code, access, expired)
+            else:
+                oauth = DeezerOAuth(app_id, secret, access, redirect_url)
 
+            self.deezer = DeezerManageAccess(oauth) if access == Access.MANAGE else DeezerDeleteAccess(oauth)
         else:
-            raise DeezerError(
-                DeezerErrorMessage.UnsupportedAccess.format(access, Access.BASIC, Access.MANAGE, Access.DELETE))
+            raise DeezerError(DeezerErrorMessage.UnsupportedAccess
+                              .format(access, Access.BASIC, Access.MANAGE, Access.DELETE))
 
 
 class DeezerBasicAccess:
