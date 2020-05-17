@@ -159,6 +159,7 @@ class DeezerErrorMessage:
     DeletePlaylist = 'Playlist with id {} was not deleted. Please, make sure that playlist with provided id exist.'
     DeleteTrack = 'Track with {} was not deleted from playlist with id {}. Please, make sure that elements with ' \
                   'provided id exists. '
+    EmptySong = 'Please, define songs for player. Song list could not be empty or undefined.'
 
 
 class DeezerParser:

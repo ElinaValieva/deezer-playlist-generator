@@ -6,7 +6,7 @@ import requests
 import tqdm
 from PIL import ImageTk, Image
 
-from deezer_api import DeezerPlayListCreator
+from deezer_api.deezer_subservice import DeezerError, DeezerErrorMessage
 
 
 class Downloader:
@@ -18,7 +18,7 @@ class Downloader:
             track = soundtracks[i]
             music_list[index] = '{} - {}'.format(track.artist.name, track.title)
             self.__download_file(track.preview, 'music/{}.mp3'.format(index))
-            self.__download_file(track.album.preview, 'album/{}.png'.format(index))
+            self.__download_file(track.album.cover_medium, 'album/{}.png'.format(index))
             index += 1
             time.sleep(0.1)
         return music_list
@@ -59,8 +59,21 @@ class PlayerControl:
             PlayerControl.__init_sound_track(player_ui)
 
     @staticmethod
+    def modify_song_name(s):
+        max_size_of_name_in_screen = 50
+        if len(s) > max_size_of_name_in_screen:
+            if '-' in s:
+                s = s.split('-')
+                s = s[0] + ' - \n' + \
+                    PlayerControl.modify_song_name(s[1])
+            else:
+                s = s[0:max_size_of_name_in_screen] + ' ..'
+        return s
+
+    @staticmethod
     def __init_sound_track(player_ui):
-        player_ui.music_label.configure(text=player_ui.music_list.get(player_ui.current_song_number))
+        song = player_ui.music_list.get(player_ui.current_song_number)
+        player_ui.music_label.configure(text=PlayerControl.modify_song_name(song))
         image = ImageTk.PhotoImage(Image.open('album/{}.png'.format(player_ui.current_song_number)))
         player_ui.panel.configure(image=image)
         player_ui.panel.image = image
@@ -69,12 +82,14 @@ class PlayerControl:
         PlayerControl.play(player_ui)
 
 
-class PlayerUI:
+class DeezerPlayer:
 
-    def __init__(self, music_max_size, music_list):
+    def __init__(self, music_max_size, deezer_soundtracks):
+        if deezer_soundtracks is None or len(deezer_soundtracks) == 0:
+            raise DeezerError(DeezerErrorMessage.EmptySong)
         self.max_size = music_max_size
         self.current_song_number = 0
-        self.music_list = music_list
+        self.music_list = Downloader().download(deezer_soundtracks)
 
         # Player initialization
         self.player = tkr.Tk()
@@ -102,12 +117,12 @@ class PlayerUI:
         # Label initialization
         self.album_image = ImageTk.PhotoImage(Image.open('album/{}.png'.format(self.current_song_number)))
         self.panel = tkr.Label(self.player, image=self.album_image)
-        self.music_label = tkr.Label(text=music_list.get(self.current_song_number))
+        self.music_label = tkr.Label(text=self.music_list.get(self.current_song_number))
         self.music_label.configure(font=("Comic Sans MS", 10), bg='black', foreground="white")
 
         # Grid configuration
         self.panel.grid(columnspan=4, padx=(85, 20), pady=(20, 0))
-        self.music_label.grid(columnspan=4, ipadx=len(self.music_label['text']) * 3)
+        self.music_label.place(x=200, y=310, anchor="center")
         self.prev_button.grid(row=1, column=0, padx=(80, 10), pady=(80, 10))
         self.play_button.grid(row=1, column=1, padx=(10, 10), pady=(80, 10))
         self.stop_button.grid(row=1, column=2, padx=(10, 10), pady=(80, 10))
@@ -115,11 +130,3 @@ class PlayerUI:
 
     def start(self):
         self.player.mainloop()
-
-
-if __name__ == '__main__':
-    cp = DeezerPlayListCreator('414022', '4be396d9a31da210bbf8355750a9371f', 'fr1d6fa6ab09b037303e8311de70fa25')
-    MAX_SIZE = 5
-    tracks = cp.generate_tracks(MAX_SIZE)
-    sound_tracks = Downloader().download(tracks)
-    PlayerUI(MAX_SIZE, sound_tracks).start()

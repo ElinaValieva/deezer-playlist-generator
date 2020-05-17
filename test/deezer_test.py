@@ -1,6 +1,6 @@
 import unittest
 
-from deezer_api import DeezerApi
+from deezer_api import DeezerApi, DeezerPlayer
 from deezer_api.deezer_subservice import DeezerError
 
 
@@ -64,6 +64,14 @@ class DeezerBasicAccess(unittest.TestCase):
     def test_search_wrong_query(self):
         with self.assertRaises(DeezerError):
             self.client.search_query('eminem', 'wrong')
+
+    def test_none_list_song_for_player(self):
+        with self.assertRaises(DeezerError):
+            DeezerPlayer(5, None).start()
+
+    def test_empty_list_song_for_player(self):
+        with self.assertRaises(DeezerError):
+            DeezerPlayer(5, {}).start()
 
 
 if __name__ == '__main__':
