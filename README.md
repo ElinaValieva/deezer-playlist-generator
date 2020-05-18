@@ -1,10 +1,15 @@
 # deezer-playlist-generator
+![Python package](https://github.com/ElinaValieva/deezer-playlist-generator/workflows/Python%20package/badge.svg)
+![Python](https://img.shields.io/pypi/pyversions/deezer-playlist-generator.svg?style=flat-square)
+![](https://img.shields.io/pypi/l/deezer-playlist-generator.svg?style=flat-square)
+![Version](https://img.shields.io/pypi/v/deezer-playlist-generator.svg?logo=python&amp;logoColor=fff&amp;style=flat-square)
+
 > Library for working with Deezer API for creating a playlist by your preferences in **Deezer**
 
 &nbsp;
 
 ## Installation :hammer:
-The package is published on PyPI and can be installed by running:
+The package is published on [PyPI](https://pypi.org/project/deezer-playlist-generator/#description) and can be installed by running:
 ```
 pip install deezer-playlist-generator
 ```
