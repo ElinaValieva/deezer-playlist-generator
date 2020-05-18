@@ -1,5 +1,5 @@
 # deezer-playlist-generator
-> Create a playlist by your preferences in **Deezer**
+> Library for working with Deezer API for creating a playlist by your preferences in **Deezer**
 
 &nbsp;
 
@@ -53,7 +53,7 @@ client = DeezerApi(app_id=<APP_ID>, secret=<SECRET>, redirect_url=<REDIRECTED_UR
 ## Player :arrow_forward:
 For reproducing a playlist by your preferences in Deezer:  
 ```python
-from deezer-playlist-generator import DeezerApi, Access, DeezerPlayer
+from deezer_api import DeezerApi, Access, DeezerPlayer
 
 client = DeezerApi(app_id=<APP_ID>, secret=<SECRET>, redirect_url=<REDIRECTED_URL>, access=Access.MANAGE)  
 tracks = cp.generate_tracks()  

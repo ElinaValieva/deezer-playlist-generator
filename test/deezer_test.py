@@ -1,6 +1,6 @@
 import unittest
 
-from deezer_api import DeezerApi, DeezerPlayer, DeezerError, Access
+from deezer_api import DeezerApi, DeezerError, DeezerPlayer, Access
 
 
 class DeezerBasicAccess(unittest.TestCase):

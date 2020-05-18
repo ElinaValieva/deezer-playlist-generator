@@ -85,10 +85,10 @@ class PlayerControl:
 
 class DeezerPlayer:
 
-    def __init__(self, music_max_size=10, deezer_soundtracks=None):
+    def __init__(self, deezer_soundtracks=None):
         if deezer_soundtracks is None or len(deezer_soundtracks) == 0:
             raise DeezerError(DeezerErrorMessage.EmptySong)
-        self.max_size = music_max_size
+        self.max_size = len(deezer_soundtracks)
         self.current_song_number = 0
         self.music_list = Downloader().download(deezer_soundtracks)
 
