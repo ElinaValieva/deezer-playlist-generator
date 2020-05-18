@@ -66,11 +66,11 @@ class DeezerBasicAccess(unittest.TestCase):
 
     def test_none_list_song_for_player(self):
         with self.assertRaises(DeezerError):
-            DeezerPlayer(5, None).start()
+            DeezerPlayer().start()
 
     def test_empty_list_song_for_player(self):
         with self.assertRaises(DeezerError):
-            DeezerPlayer(5, {}).start()
+            DeezerPlayer({}).start()
 
     def test_deezer_api(self):
         with self.assertRaises(DeezerError):
