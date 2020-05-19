@@ -1,8 +1,9 @@
 # deezer-playlist-generator
 ![Python package](https://github.com/ElinaValieva/deezer-playlist-generator/workflows/Python%20package/badge.svg)
+![Upload Python Package](https://github.com/ElinaValieva/deezer-playlist-generator/workflows/Upload%20Python%20Package/badge.svg?branch=v1.0.1)
+![Version](https://img.shields.io/pypi/v/deezer-playlist-generator.svg?logo=python&amp;logoColor=fff&amp;style=flat-square)
 ![Python](https://img.shields.io/pypi/pyversions/deezer-playlist-generator.svg?style=flat-square)
 ![](https://img.shields.io/pypi/l/deezer-playlist-generator.svg?style=flat-square)
-![Version](https://img.shields.io/pypi/v/deezer-playlist-generator.svg?logo=python&amp;logoColor=fff&amp;style=flat-square)
 
 > Library for working with Deezer API for creating a playlist by your preferences in **Deezer**
 
@@ -28,6 +29,14 @@ Easily query the Deezer API from you Python code. The data returned by the Deeze
 >>> client.client.get_playlist(908622995).title
 > 'Bain moussant'
 ```
+Create your playlist with recommended tracks in Deezer:
+```python
+>>> client = DeezerApi(app_id=<APP_ID>, secret=<SECRET>, redirect_url=<REDIRECTED_URL>, access=Access.MANAGE)
+>>> tracks = client.create_recommendation_playlist(title='My Deezer Recommendation', count_tracks=10)
+
+> Processing user playlist: 100%|██████████| 10/10 [00:03<00:00,  3.14it/s]
+> Generating playlist: 100%|██████████| 10/10 [00:03<00:00,  3.31it/s]
+```
 &nbsp;
 
 ## Deezer Client :triangular_flag_on_post:
@@ -35,7 +44,7 @@ Easily query the Deezer API from you Python code. The data returned by the Deeze
  ```python 
  Access.BASIC = basic_access
  Access.MANAGE = manage_library
- Access.DELETE = detele_library
+ Access.DELETE = delete_library
  ```
 **Basic Client** - client with `basic_access`, which supports access users basic information
 ```python

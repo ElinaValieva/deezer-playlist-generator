@@ -4,3 +4,6 @@ venv/
 album/
 __pycache__/
 test.py
+build/
+deezer_playlist_generator.egg-info/
+dist/

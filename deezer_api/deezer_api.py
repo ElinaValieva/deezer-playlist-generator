@@ -150,6 +150,19 @@ class DeezerApi:
                               .format(self.__access, 'generate tracks by yours preferences'))
         return self.__client.generate_tracks(count_tracks)
 
+    def create_recommendation_playlist(self, title='Deezer Recommendation', count_tracks=50):
+        """
+        Create recommendation playlist
+        :param title: name of playlist
+        :param count_tracks: count tracks
+        :return: tracks
+        """
+        tracks = self.generate_tracks(count_tracks)
+        recommendation_playlist = self.create_playlist(title)
+        for track in tracks:
+            self.add_track_to_playlist(recommendation_playlist.id, track.id)
+        return tracks
+
     def get_favourites_artists_by_playlist_id(self, user_playlist, count_tracks=50):
         """
         Get your favourites artist in playlist [access > Basic]
