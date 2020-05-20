@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 def readme():
-    with open('README.md') as f:
+    with open('README.md', encoding='utf-8') as f:
         readme = f.read()
     return readme
 
@@ -13,7 +13,7 @@ def requirements():
     return requirement
 
 
-version = '1.0.1'
+version = '1.0.2'
 setup(
     name='deezer-playlist-generator',
     version=version,
@@ -36,6 +36,7 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
