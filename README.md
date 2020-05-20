@@ -9,14 +9,14 @@
 
 &nbsp;
 
-## Installation :hammer:
+## Installation 🔨
 The package is published on [PyPI](https://pypi.org/project/deezer-playlist-generator/#description) and can be installed by running:
 ```
 pip install deezer-playlist-generator
 ```
 &nbsp;
 
-## Usage :musical_note:
+## Usage 🎵
 Easily query the Deezer API from you Python code. The data returned by the Deezer API is mapped to python resources:
 ```python
 >>> client = DeezerApi()
@@ -39,7 +39,7 @@ Create your playlist with recommended tracks in Deezer:
 ```
 &nbsp;
 
-## Deezer Client :triangular_flag_on_post:
+## Deezer Client 🚩
 #### Supported [permissions](https://developers.deezer.com/api/permissions)
  ```python 
  Access.BASIC = basic_access
@@ -64,7 +64,7 @@ client = DeezerApi(app_id=<APP_ID>, secret=<SECRET>, redirect_url=<REDIRECTED_UR
 ```
 &nbsp;
 
-## Player :arrow_forward:
+## Player ▶️
 For reproducing a playlist by your preferences in Deezer:  
 ```python
 from deezer_api import DeezerApi, Access, DeezerPlayer

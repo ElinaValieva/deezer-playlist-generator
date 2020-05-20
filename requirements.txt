@@ -1,4 +1,4 @@
 requests==2.23.0
 tqdm==4.46.0
-pygame==1.9.6
+pygame==2.0.0.dev8
 Pillow==7.1.2
