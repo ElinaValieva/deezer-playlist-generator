@@ -13,7 +13,7 @@ def requirements():
     return requirement
 
 
-version = '1.0.2'
+version = '1.0.3'
 setup(
     name='deezer-playlist-generator',
     version=version,
@@ -23,9 +23,7 @@ setup(
     author="Valieva Elina",
     author_email="valievaelinaaa@gmail.com",
     url="https://github.com/ElinaValieva/deezer-playlist-generator",
-    download_url="https://github.com/browniebroke/deezer-python/tarball/{}".format(
-        version
-    ),
+    download_url="https://github.com/ElinaValieva/deezer-playlist-generator/archive/v{}.tar.gz".format(version),
     license="MIT",
     packages=["deezer_api"],
     install_requires=requirements(),
